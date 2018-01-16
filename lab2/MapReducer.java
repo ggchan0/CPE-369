@@ -26,7 +26,7 @@ public class MapReducer extends Configured implements Tool{
                 throws IOException, InterruptedException {
             int count = 0;
             for (IntWritable val : values) {
-                count++;
+                count += val.get();
             }
 
             context.write(key, new IntWritable(count));
@@ -45,6 +45,7 @@ public class MapReducer extends Configured implements Tool{
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);
         job.setMapperClass(SalesMapper.class);
+        job.setCombinerClass(SalesReducer.class);
         job.setReducerClass(SalesReducer.class);
         FileInputFormat.setInputPaths(job, new Path(args[0]));
         FileOutputFormat.setOutputPath(job, new Path(args[1]));
