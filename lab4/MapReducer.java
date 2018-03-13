@@ -12,50 +12,6 @@ import org.apache.hadoop.mapreduce.lib.output.*;
 
 public class MapReducer extends Configured implements Tool {
 
-    public static class YTIDPair
-            implements Writable, WritableComparable<YTIDPair> {
-        private final Text yearTime = new Text();
-        private final IntWritable id = new IntWritable();
-
-        public YTIDPair() {
-
-        }
-
-        public YTIDPair(String yearTime, int id) {
-            this.yearTime.set(yearTime);
-            this.id.set(id);
-        }
-
-        @Override
-        public void write(DataOutput out) throws IOException {
-            yearTime.write(out);
-            id.write(out);
-        }
-
-        @Override
-        public void readFields(DataInput in) throws IOException {
-            yearTime.readFields(in);
-            id.readFields(in);
-        }
-
-        @Override
-        public int compareTo(YTIDPair pair) {
-            if (yearTime.compareTo(pair.getYearTime()) == 0) {
-                return id.compareTo(pair.id);
-            }
-            return yearTime.compareTo(pair.getYearTime());
-        }
-
-        public Text getYearTime() {
-            return yearTime;
-        }
-
-        public IntWritable getId() {
-            return id;
-        }
-
-    }
-
     public static class SalesMapper
             extends Mapper<LongWritable, Text, YTIDPair, Text> {
         @Override
@@ -65,46 +21,6 @@ public class MapReducer extends Configured implements Tool {
             String yearTime = tokens[1] + "-" + tokens[2];
             int id = Integer.parseInt(tokens[0]);
             context.write(new YTIDPair(yearTime, id), new Text(tokens[2] + " " + tokens[0]));
-        }
-    }
-
-    public static class SecondarySortSortingComparator
-            extends WritableComparator {
-        protected SecondarySortSortingComparator() {
-            super(YTIDPair.class, true);
-        }
-
-        @Override
-        public int compare(WritableComparable wc1, WritableComparable wc2) {
-            YTIDPair pair = (YTIDPair) wc1;
-            YTIDPair pair2 = (YTIDPair) wc2;
-            return pair.compareTo(pair2);
-        }
-    }
-
-    public static class SecondarySortPartitioner
-            extends Partitioner<YTIDPair, Text> {
-
-        @Override
-        public int getPartition(YTIDPair pair, Text val, int numPartitions) {
-            return Math.abs(pair.getYearTime().hashCode() % numPartitions);
-        }
-    }
-
-    public static class SecondarySortGroupingComparator extends WritableComparator {
-        public SecondarySortGroupingComparator() {
-            super(YTIDPair.class, true);
-        }
-
-        @Override
-        public int compare(WritableComparable wc1, WritableComparable wc2) {
-            YTIDPair pair = (YTIDPair) wc1;
-            YTIDPair pair2 = (YTIDPair) wc2;
-
-            String year1 = pair.getYearTime().toString().split("-")[0];
-            String year2 = pair2.getYearTime().toString().split("-")[0];
-
-            return year1.compareTo(year2);
         }
     }
 
