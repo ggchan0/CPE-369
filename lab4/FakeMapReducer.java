@@ -16,7 +16,7 @@ public class FakeMapReducer {
             Product p = new Product(Integer.parseInt(fields[0]), fields[1], Float.parseFloat(fields[2]));
             set.add(p);
             if (set.size() > 10) {
-                set.pollFirst();
+                set.pollLast();
             }
         }
 
@@ -41,13 +41,7 @@ public class FakeMapReducer {
             throw e;
         }
 
-        //Sort descending
-        Product [] products = new Product[10];
-        set.toArray(products);
-        Arrays.sort(products, new ProductComparator());
-
-        //prints out the array
-        for (Product p : products) {
+        for (Product p : set) {
             System.out.println(p);
         }
 
@@ -55,7 +49,7 @@ public class FakeMapReducer {
 
     public static class ProductComparator implements Comparator<Product> {
         public int compare(Product p1, Product p2) {
-            return (-1) * p1.compareTo(p2);
+            return p1.compareTo(p2);
         }
     }
 
@@ -76,9 +70,9 @@ public class FakeMapReducer {
 
         public int compareTo(Product p) {
             if (this.price > p.price) {
-                return 1;
-            } else if (this.price < p.price) {
                 return -1;
+            } else if (this.price < p.price) {
+                return 1;
             } else {
                 return 0;
             }

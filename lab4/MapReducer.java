@@ -27,9 +27,9 @@ public class MapReducer extends Configured implements Tool {
         @Override
         public int compareTo(Product p) {
             if (this.price > p.price) {
-                return 1;
-            } else if (this.price < p.price) {
                 return -1;
+            } else if (this.price < p.price) {
+                return 1;
             } else {
                 return 0;
             }
@@ -68,7 +68,7 @@ public class MapReducer extends Configured implements Tool {
             double price = Double.parseDouble(tokens[2]);
             top.add(new Product(id, tokens[1], price));
             if (top.size() > n) {
-                top.remove(top.first());
+                top.remove(top.last());
             }
         }
 
@@ -101,7 +101,7 @@ public class MapReducer extends Configured implements Tool {
                 double price = Double.parseDouble(tokens[2]);
                 top.add(new Product(id, tokens[1], price));
                 if (top.size() > n) {
-                    top.remove(top.first());
+                    top.remove(top.last());
                 }
             }
 
