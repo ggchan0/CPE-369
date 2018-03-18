@@ -25,7 +25,7 @@ public class MapReducer extends Configured implements Tool {
             this.yearTime.set(yearTime);
             this.id.set(id);
         }
-
+        
         @Override
         public void write(DataOutput out) throws IOException {
             yearTime.write(out);
@@ -83,10 +83,10 @@ public class MapReducer extends Configured implements Tool {
     }
 
     public static class SecondarySortPartitioner
-            extends Partitioner<YTIDPair, Text> {
-
+            extends Partitioner<YTIDPair, IntWritable> {
+        
         @Override
-        public int getPartition(YTIDPair pair, Text val, int numPartitions) {
+        public int getPartition(YTIDPair pair, IntWritable id, int numPartitions) {
             return Math.abs(pair.getYearTime().hashCode() % numPartitions);
         }
     }
@@ -113,7 +113,7 @@ public class MapReducer extends Configured implements Tool {
         public void reduce(YTIDPair key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
             String year = key.getYearTime().toString().split("-")[0];
-
+            
             String result = "";
             for (Text val : values) {
                 String [] tokens = val.toString().split(" ");

@@ -12,6 +12,7 @@ import org.apache.hadoop.mapreduce.lib.output.*;
 
 public class MapReducer extends Configured implements Tool {
 
+<<<<<<< HEAD
     public static class Product
             implements Writable, WritableComparable<Product> {
         private final IntWritable id = new IntWritable();        
