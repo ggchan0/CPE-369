@@ -86,17 +86,20 @@ public class MapReducer extends Configured implements Tool {
     }
 
     public static class ProductReducer
-            extends Reducer<NullWritable, Product, NullWritable, Text> {
+            extends Reducer<NullWritable, Text, NullWritable, Text> {
 
         private int n = ProductMapper.DEFAULT_N;
         private SortedSet<Product> top = new TreeSet<>();
 
         @Override
-        public void reduce(NullWritable key, Iterable<Product> values, Context context)
+        public void reduce(NullWritable key, Iterable<Text> values, Context context)
                 throws IOException, InterruptedException {
 
-            for (Product val : values) {
-                top.add(val);
+            for (Text val : values) {
+                String [] tokens = val.toString().trim().split(",");
+                int id = Integer.parseInt(tokens[0]);
+                double price = Double.parseDouble(tokens[2]);
+                top.add(new Product(id, tokens[1], price));
                 if (top.size() > n) {
                     top.remove(top.last());
                 }
@@ -124,7 +127,7 @@ public class MapReducer extends Configured implements Tool {
         job.setOutputKeyClass(NullWritable.class);
         job.setOutputValueClass(Text.class);
         job.setMapOutputKeyClass(NullWritable.class);
-        job.setMapOutputValueClass(Product.class);
+        job.setMapOutputValueClass(Text.class);
         job.setMapperClass(ProductMapper.class);
         job.setReducerClass(ProductReducer.class);
         FileInputFormat.setInputPaths(job, new Path(args[0]));
