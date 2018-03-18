@@ -12,7 +12,6 @@ import org.apache.hadoop.mapreduce.lib.output.*;
 
 public class MapReducer extends Configured implements Tool {
 
-<<<<<<< HEAD
     public static class Product
             implements Writable, WritableComparable<Product> {
         private final IntWritable id = new IntWritable();        
@@ -61,7 +60,7 @@ public class MapReducer extends Configured implements Tool {
         }
 
         public String toString() {
-            return this.id.get() + ", " + this.text.get() + ", " + this.price.get();
+            return this.id.get() + ", " + this.info.toString() + ", " + this.price.get();
         }
 
     }
@@ -93,7 +92,7 @@ public class MapReducer extends Configured implements Tool {
         @Override
         public void cleanup(Context context) throws IOException, InterruptedException {
             for (Product r: top) {
-                context.wite(NullWritable.get(), r);
+                context.write(NullWritable.get(), r);
             }
         }
     }
@@ -107,7 +106,7 @@ public class MapReducer extends Configured implements Tool {
         @Override
         public void reduce(NullWritable key, Iterable<Product> values, Context context)
                 throws IOException, InterruptedException {
-            String year = key.getYearTime().toString().split("-")[0];
+
             for (Product val : values) {
                 top.add(val);
                 if (top.size() > n) {
@@ -131,6 +130,7 @@ public class MapReducer extends Configured implements Tool {
 
     public int run(String [] args) throws Exception {
         Job job = Job.getInstance();
+        job.getConfiguration().setInt("N", 10);
         job.setJarByClass(MapReducer.class);
         job.setJobName("MapReducer");
         job.setOutputKeyClass(NullWritable.class);
