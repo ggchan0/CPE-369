@@ -12,61 +12,49 @@ import org.apache.hadoop.mapreduce.lib.output.*;
 
 public class MapReducer extends Configured implements Tool {
 
-    public static class Product
-            implements Writable, WritableComparable<Product> {
-        private final IntWritable id = new IntWritable();        
-        private final Text info = new Text();
-        private final DoubleWritable price = new DoubleWritable();
+    public static class Product implements Comparable<Product> {
+        private final int id;        
+        private final String info;
+        private final double price;
         
-        public Product() {
-
-        }
 
         public Product(int id, String info, double price) {
-            this.id.set(id);
-            this.info.set(info);
-            this.price.set(price);
-        }
-        
-        @Override
-        public void write(DataOutput out) throws IOException {
-            id.write(out);
-            info.write(out);
-            price.write(out);
-        }
-
-        @Override
-        public void readFields(DataInput in) throws IOException {
-            id.readFields(in);
-            info.readFields(in);
-            price.readFields(in);
+            this.id = id;
+            this.info = info;
+            this.price = price;
         }
 
         @Override
         public int compareTo(Product p) {
-            return this.price.compareTo(p.getPrice());
+            if (this.price > p.price) {
+                return 1;
+            } else if (this.price < p.price) {
+                return -1;
+            } else {
+                return 0;
+            }
         }
 
-        public IntWritable getId() {
+        public int getId() {
             return id;
         }
 
-        public Text getInfo() {
+        public String getInfo() {
             return info;
         }
 
-        public DoubleWritable getPrice() {
+        public double getPrice() {
             return price;
         }
 
         public String toString() {
-            return this.id.get() + ", " + this.info.toString() + ", " + this.price.get();
+            return this.id + "," + this.info + "," + this.price;
         }
 
     }
 
     public static class ProductMapper
-            extends Mapper<LongWritable, Text, NullWritable, Product> {
+            extends Mapper<LongWritable, Text, NullWritable, Text> {
 
         public static final int DEFAULT_N = 10;
         private int n = DEFAULT_N;
@@ -91,8 +79,8 @@ public class MapReducer extends Configured implements Tool {
 
         @Override
         public void cleanup(Context context) throws IOException, InterruptedException {
-            for (Product r: top) {
-                context.write(NullWritable.get(), r);
+            for (Product p: top) {
+                context.write(NullWritable.get(), new Text(p.toString()));
             }
         }
     }
