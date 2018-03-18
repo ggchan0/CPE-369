@@ -68,7 +68,7 @@ public class MapReducer extends Configured implements Tool {
             double price = Double.parseDouble(tokens[2]);
             top.add(new Product(id, tokens[1], price));
             if (top.size() > n) {
-                top.remove(top.last());
+                top.remove(top.first());
             }
         }
 
@@ -101,7 +101,7 @@ public class MapReducer extends Configured implements Tool {
                 double price = Double.parseDouble(tokens[2]);
                 top.add(new Product(id, tokens[1], price));
                 if (top.size() > n) {
-                    top.remove(top.last());
+                    top.remove(top.first());
                 }
             }
 
