@@ -12,7 +12,7 @@ object App {
       Logger.getLogger("org").setLevel(Level.OFF)
       Logger.getLogger("akka").setLevel(Level.OFF)
 
-      val conf = new SparkConf().setAppName("Lab6").setMaster("local[4]")
+      val conf = new SparkConf().setAppName("Lab6")
 
       val sc = new SparkContext(conf)
       
@@ -48,15 +48,20 @@ object App {
       val storeMap = stores.map(line => (line.split(",")(0).trim.toInt, 
       line.split(",")(5).trim))
 
-      itemsMap.leftOuterJoin(productMap)
+      //Join each purchase with the corresponding product and get the saleID and the total price
+      //Join each saleID, total with the sale RDD to get the store ID and total
+      //Join the storeID, total with the store RDD to get the state, storeID, and total for that particular product
+      //Reduce by key to get the total earned by the store for every product
+      val res = itemsMap.leftOuterJoin(productMap)
          .map{case(productID, ((salesID, quantity), Some(price))) => (salesID, quantity * price)}
          .leftOuterJoin(saleMap)
          .map{case(saleID, (total, Some(storeID))) => (storeID, total)}
          .leftOuterJoin(storeMap)
          .map{case(storeID, (total, Some(state))) => ((state, storeID), total)}
-         .reduceByKey((a, b) => a + b)
-         .sortByKey()
-         .collect()
-         .foreach{case((state, storeID), total) => println(state + ", " + storeID + ", " + total)}
+         .reduceByKey((a, b) => a + b) //get totals for each store
+         .sortByKey() //sorts results
+         .collect() //collects into an array
+         
+      res.foreach{case((state, storeID), total) => println(state + ", " + storeID + ", " + total)}
    }
 }
